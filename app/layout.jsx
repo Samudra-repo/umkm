@@ -1,11 +1,28 @@
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PwaRegister from "./PwaRegister";
 import { toko } from "@/lib/toko";
 
 export const metadata = {
   title: toko.nama,
   description: toko.tagline,
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/icons/icon-192.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: toko.nama,
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport = {
+  themeColor: "#1f6b4f",
 };
 
 export default function RootLayout({ children }) {
@@ -20,6 +37,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="flex min-h-screen flex-col font-sans antialiased">
+        <PwaRegister />
         <Header />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4">{children}</main>
         <Footer />

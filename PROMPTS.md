@@ -91,3 +91,11 @@ Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yan
 **Hasil:** Memperbarui `components/TombolWhatsApp.jsx` (`"use client"`) untuk menambahkan pemilih jumlah pesanan (`-`, input angka minimal `1`, `+`), kolom opsional `Varian / catatan`, tampilan total harga dinamis, serta menyertakan jumlah, varian/catatan (jika diisi), dan total harga di dalam pesan WhatsApp yang di-encode ke tautan `https://wa.me/`.
 
 **Perbaikan:** -
+
+### US-13 PWA
+
+**Prompt:** Sebagai pengunjung, saya ingin memasang katalog di layar HP seperti aplikasi. Ikon tersedia di `public/icons`.
+
+**Hasil:** Membuat web app manifest di `app/manifest.js` (otomatis tertaut sebagai `/manifest.webmanifest`) yang merujuk ikon `/icons/icon-192.png` dan `/icons/icon-512.png` dengan `display: "standalone"` dan identitas toko dari `lib/toko.js`, menambahkan `public/sw.js` dan `app/PwaRegister.jsx` untuk pendaftaran service worker, serta melengkapi `metadata` (ikon dan dukungan `appleWebApp`) dan `viewport.themeColor` di `app/layout.jsx`.
+
+**Perbaikan:** -
