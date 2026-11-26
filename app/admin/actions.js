@@ -50,3 +50,49 @@ export async function keluarAdmin() {
 
   redirect("/admin/login");
 }
+
+export async function gantiPassword(_stateSebelumnya, formData) {
+  const passwordBaru = formData.get("password_baru")?.toString() ?? "";
+  const konfirmasi = formData.get("konfirmasi_password")?.toString() ?? "";
+
+  if (passwordBaru.length < 8) {
+    return { error: "Password baru minimal 8 karakter." };
+  }
+
+  if (passwordBaru !== konfirmasi) {
+    return { error: "Konfirmasi password tidak sama dengan password baru." };
+  }
+
+  try {
+    const supabase = await buatSupabaseSesi();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        error: "Anda harus masuk sebagai admin terlebih dahulu sebelum mengganti password.",
+      };
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: passwordBaru,
+    });
+
+    if (error) {
+      console.error("Gagal mengganti password:", error.message);
+      if (error.message.toLowerCase().includes("different from the old password")) {
+        return { error: "Password baru harus berbeda dari password sebelumnya." };
+      }
+      return { error: "Gagal mengganti password. Silakan coba lagi." };
+    }
+
+    return { success: "Password berhasil diperbarui." };
+  } catch (err) {
+    console.error("Kesalahan saat mengganti password:", err?.message ?? err);
+    return {
+      error: "Terjadi gangguan pada server autentikasi. Coba lagi beberapa saat.",
+    };
+  }
+}
