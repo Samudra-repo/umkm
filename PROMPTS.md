@@ -99,3 +99,11 @@ Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yan
 **Hasil:** Membuat web app manifest di `app/manifest.js` (otomatis tertaut sebagai `/manifest.webmanifest`) yang merujuk ikon `/icons/icon-192.png` dan `/icons/icon-512.png` dengan `display: "standalone"` dan identitas toko dari `lib/toko.js`, menambahkan `public/sw.js` dan `app/PwaRegister.jsx` untuk pendaftaran service worker, serta melengkapi `metadata` (ikon dan dukungan `appleWebApp`) dan `viewport.themeColor` di `app/layout.jsx`.
 
 **Perbaikan:** -
+
+### US-14 Deskripsi produk dibuat AI
+
+**Prompt:** Sebagai admin, saya ingin membuat deskripsi produk secara otomatis dengan AI (Gemini API) dari nama dan kategori produk.
+
+**Hasil:** Menambahkan Server Action `buatDeskripsiAI` di `app/admin/actions.js` yang memeriksa login admin lewat `periksaAdminLogin()`, memanggil Gemini API (`gemini-2.5-flash`) dari server menggunakan `GEMINI_API_KEY` (tanpa terekspos ke browser), serta memperbarui `components/FormProduk.jsx` dengan tombol **Buat deskripsi dengan AI** yang mengisi kolom deskripsi sebelum produk disimpan. Menambahkan `GEMINI_API_KEY=` di `.env.example`.
+
+**Perbaikan:** -

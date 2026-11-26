@@ -106,3 +106,89 @@ export async function gantiPassword(_stateSebelumnya, formData) {
     };
   }
 }
+
+export async function buatDeskripsiAI({ nama, kategori }) {
+  try {
+    const { user } = await periksaAdminLogin();
+
+    if (!user) {
+      return {
+        error: "Anda harus masuk sebagai admin terlebih dahulu.",
+      };
+    }
+
+    const namaBersih = nama?.toString().trim() ?? "";
+    const kategoriBersih = kategori?.toString().trim() ?? "";
+
+    if (!namaBersih) {
+      return {
+        error: "Isi nama produk terlebih dahulu sebelum membuat deskripsi dengan AI.",
+      };
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY?.trim();
+
+    if (!apiKey) {
+      return {
+        error:
+          "Variabel environment GEMINI_API_KEY belum diisi di server (.env.local atau Vercel).",
+      };
+    }
+
+    const prompt = [
+      "Buatkan deskripsi produk UMKM yang singkat, jelas, menarik, dan informatif dalam bahasa Indonesia (2 sampai 3 kalimat, tanpa format markdown, tanpa bullet, dan tanpa emoji).",
+      `Nama produk: ${namaBersih}`,
+      kategoriBersih ? `Kategori: ${kategoriBersih}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+        signal: AbortSignal.timeout(15000),
+      }
+    );
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      console.error("Gemini API gagal:", response.status, detail);
+      if (response.status === 400 || response.status === 401 || response.status === 403) {
+        return {
+          error: "GEMINI_API_KEY tidak valid atau ditolak oleh Gemini API.",
+        };
+      }
+      return {
+        error: "Gagal membuat deskripsi dari Gemini API. Coba lagi beberapa saat.",
+      };
+    }
+
+    const data = await response.json();
+    const deskripsi =
+      data?.candidates?.[0]?.content?.parts
+        ?.map((part) => part.text ?? "")
+        .join("")
+        .trim() ?? "";
+
+    if (!deskripsi) {
+      return {
+        error: "Gemini API tidak mengembalikan teks deskripsi. Coba lagi.",
+      };
+    }
+
+    return { deskripsi };
+  } catch (err) {
+    console.error("Kesalahan saat memanggil Gemini API:", err?.message ?? err);
+    return {
+      error: "Terjadi gangguan atau timeout saat menghubungi Gemini API. Coba lagi.",
+    };
+  }
+}
