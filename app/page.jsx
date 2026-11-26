@@ -1,32 +1,76 @@
+import Link from "next/link";
+import Input from "@/components/Input";
 import KartuProduk from "@/components/KartuProduk";
+import Tombol from "@/components/Tombol";
 import { buatSupabaseServer } from "@/lib/supabase/server";
 import { toko } from "@/lib/toko";
 
 export const dynamic = "force-dynamic";
 
-export default async function HalamanKatalog() {
+function buatUrlKatalog({ kategori, cari }) {
+  const params = new URLSearchParams();
+  if (kategori) params.set("kategori", kategori);
+  if (cari) params.set("cari", cari);
+  const query = params.toString();
+  return query ? `/?${query}` : "/";
+}
+
+function escapeLike(nilai) {
+  return nilai.replace(/[\\%_]/g, "\\$&");
+}
+
+export default async function HalamanKatalog({ searchParams }) {
+  const resolvedParams = await searchParams;
+  const kategoriAktif = resolvedParams?.kategori?.toString().trim() ?? "";
+  const kataKunci = resolvedParams?.cari?.toString().trim() ?? "";
+
   let daftarProduk = [];
+  let daftarKategori = [];
   let pesanError = null;
 
   try {
     const supabase = buatSupabaseServer();
-    const { data, error } = await supabase
+
+    let queryProduk = supabase
       .from("produk")
       .select("id, nama, harga, foto_url, kategori")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Gagal mengambil data produk:", error.message);
+    if (kategoriAktif) {
+      queryProduk = queryProduk.eq("kategori", kategoriAktif);
+    }
+
+    if (kataKunci) {
+      queryProduk = queryProduk.ilike("nama", `%${escapeLike(kataKunci)}%`);
+    }
+
+    const [{ data: dataProduk, error: errorProduk }, { data: dataKategori, error: errorKategori }] =
+      await Promise.all([queryProduk, supabase.from("produk").select("kategori")]);
+
+    if (errorProduk || errorKategori) {
+      console.error(
+        "Gagal mengambil data produk:",
+        errorProduk?.message ?? errorKategori?.message
+      );
       pesanError =
         "Gagal mengambil daftar produk dari database. Coba muat ulang halaman atau periksa tabel produk di Supabase.";
     } else {
-      daftarProduk = data ?? [];
+      daftarProduk = dataProduk ?? [];
+      daftarKategori = Array.from(
+        new Set(
+          (dataKategori ?? [])
+            .map((item) => item.kategori?.trim())
+            .filter(Boolean)
+        )
+      ).sort((a, b) => a.localeCompare(b, "id"));
     }
   } catch (err) {
     console.error("Gagal membuat koneksi Supabase:", err?.message ?? err);
     pesanError =
       "Gagal terhubung ke database. Pastikan SUPABASE_URL dan SUPABASE_SECRET_KEY sudah dikonfigurasi dengan benar.";
   }
+
+  const sedangDisaring = Boolean(kategoriAktif || kataKunci);
 
   return (
     <>
@@ -42,6 +86,64 @@ export default async function HalamanKatalog() {
         <h2 id="judul-produk" className="text-xl font-bold">
           Produk kami
         </h2>
+
+        {!pesanError && (daftarKategori.length > 0 || sedangDisaring) && (
+          <div className="flex flex-col gap-4">
+            <form method="GET" action="/" className="flex flex-col gap-2 sm:flex-row sm:items-end">
+              {kategoriAktif && <input type="hidden" name="kategori" value={kategoriAktif} />}
+              <div className="flex-1 sm:max-w-sm">
+                <Input
+                  key={kataKunci}
+                  label="Cari produk"
+                  name="cari"
+                  type="search"
+                  defaultValue={kataKunci}
+                  placeholder="Cari nama produk..."
+                />
+              </div>
+              <div className="flex gap-2">
+                <Tombol type="submit">Cari</Tombol>
+                {sedangDisaring && (
+                  <Tombol href="/" varian="garis">
+                    Reset
+                  </Tombol>
+                )}
+              </div>
+            </form>
+
+            {daftarKategori.length > 0 && (
+              <nav aria-label="Filter kategori" className="flex flex-wrap gap-2">
+                <Link
+                  href={buatUrlKatalog({ cari: kataKunci })}
+                  className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+                    !kategoriAktif
+                      ? "bg-utama text-white"
+                      : "border border-garis bg-latar text-teks hover:border-utama hover:text-utama"
+                  }`}
+                >
+                  Semua
+                </Link>
+                {daftarKategori.map((kategori) => {
+                  const aktif = kategoriAktif === kategori;
+                  return (
+                    <Link
+                      key={kategori}
+                      href={buatUrlKatalog({ kategori, cari: kataKunci })}
+                      className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+                        aktif
+                          ? "bg-utama text-white"
+                          : "border border-garis bg-latar text-teks hover:border-utama hover:text-utama"
+                      }`}
+                    >
+                      {kategori}
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
+          </div>
+        )}
+
         {pesanError ? (
           <p
             role="alert"
@@ -50,9 +152,18 @@ export default async function HalamanKatalog() {
             {pesanError}
           </p>
         ) : daftarProduk.length === 0 ? (
-          <p className="rounded-xl border border-garis bg-permukaan px-4 py-6 text-sm text-teks-lembut">
-            Belum ada produk
-          </p>
+          <div className="flex flex-col items-start gap-3 rounded-xl border border-garis bg-permukaan px-4 py-6 text-sm text-teks-lembut">
+            <p>
+              {sedangDisaring
+                ? "Tidak ada produk yang cocok dengan pencarian atau kategori yang dipilih."
+                : "Belum ada produk"}
+            </p>
+            {sedangDisaring && (
+              <Tombol href="/" varian="garis">
+                Lihat semua produk
+              </Tombol>
+            )}
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {daftarProduk.map((produk) => (

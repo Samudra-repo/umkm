@@ -75,3 +75,19 @@ Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yan
 **Hasil:** Penyebabnya adalah nilai `SUPABASE_URL` di `.env.local` memiliki akhiran `/rest/v1/`, sehingga `@supabase/supabase-js` mengakses path yang salah (`/rest/v1/rest/v1/produk`).
 
 **Perbaikan:** Menghapus akhiran `/rest/v1/` pada `SUPABASE_URL` di `.env.local` dan menormalisasi `SUPABASE_URL` dengan `new URL(rawUrl).origin` (serta `.trim()`) di `lib/supabase/server.js` tanpa mengubah tampilan di `app/page.jsx` maupun `components/KartuProduk.jsx`.
+
+### US-11 Filter kategori atau pencarian
+
+**Prompt:** Sebagai pengunjung, saya ingin menyaring produk berdasarkan kategori atau mencari nama produk.
+
+**Hasil:** Memperbarui `app/page.jsx` agar membaca parameter URL `kategori` dan `cari` melalui `await searchParams`, menyaring query Supabase di sisi server (`.eq("kategori", ...)` dan `.ilike("nama", ...)`), mengambil daftar kategori unik dari tabel `produk`, serta menampilkan form pencarian (memakai komponen `Input` dan `Tombol`) dan tombol filter kategori plus tombol reset tanpa mengubah tampilan `KartuProduk`.
+
+**Perbaikan:** -
+
+### US-12 Pilih jumlah atau varian
+
+**Prompt:** Sebagai pengunjung, saya ingin memilih jumlah atau varian sebelum memesan, dan pilihan itu ikut tertulis di pesan WhatsApp.
+
+**Hasil:** Memperbarui `components/TombolWhatsApp.jsx` (`"use client"`) untuk menambahkan pemilih jumlah pesanan (`-`, input angka minimal `1`, `+`), kolom opsional `Varian / catatan`, tampilan total harga dinamis, serta menyertakan jumlah, varian/catatan (jika diisi), dan total harga di dalam pesan WhatsApp yang di-encode ke tautan `https://wa.me/`.
+
+**Perbaikan:** -
