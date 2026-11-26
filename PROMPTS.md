@@ -4,11 +4,15 @@ Catat prompt penting selama membangun aplikasi: apa yang kamu minta, hasilnya, d
 
 ## US-01 Katalog dari database
 
-**Prompt:**
+**Prompt:** Baca AGENTS.md dan docs/user-stories.md bagian US-01.
 
-**Hasil:**
+Ubah app/page.jsx supaya daftar produk diambil dari tabel "produk" di Supabase, di sisi server, memakai SUPABASE_URL dan SUPABASE_SECRET_KEY dari environment variable. Buat koneksi Supabase untuk server di folder lib/supabase.
 
-**Perbaikan:**
+Tampilkan produk dengan komponen KartuProduk yang sudah ada, tanpa mengubah tampilannya. Kalau gagal mengambil data, tampilkan pesan error yang jelas di halaman. Kalau tabel kosong, tampilkan tulisan "Belum ada produk". Hapus CatatanBelumAktif dari halaman ini.
+
+**Hasil:** Membuat koneksi Supabase untuk server di `lib/supabase/server.js` (`buatSupabaseServer`) menggunakan `SUPABASE_URL` dan `SUPABASE_SECRET_KEY`. Mengubah `app/page.jsx` menjadi Server Component dinamis (`force-dynamic`) untuk mengambil data dari tabel `produk`, menampilkannya memakai `KartuProduk`, menampilkan pesan error bila gagal atau `"Belum ada produk"` bila kosong, dan menghapus `CatatanBelumAktif`.
+
+**Perbaikan:** Saat diuji muncul pesan error `"Gagal mengambil daftar produk dari database. Coba muat ulang halaman atau periksa tabel produk di Supabase."` karena `SUPABASE_URL` di `.env.local` berisi akhiran `/rest/v1/`. Nilai `SUPABASE_URL` di `.env.local` diperbaiki menjadi URL proyek utama dan `lib/supabase/server.js` dinormalisasi dengan `new URL(rawUrl).origin` tanpa mengubah tampilan.
 
 ## US-02 Detail produk
 
@@ -53,3 +57,11 @@ Catat prompt penting selama membangun aplikasi: apa yang kamu minta, hasilnya, d
 ## Debugging dan fitur bonus
 
 Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yang kamu kerjakan.
+
+### Perbaikan error koneksi katalog ke Supabase (US-01)
+
+**Prompt [SENDIRI]:** muncul error ini dalam katalog: Gagal mengambil daftar produk dari database. Coba muat ulang halaman atau periksa tabel produk di Supabase. perbaiki tanpa merubah tampilan
+
+**Hasil:** Penyebabnya adalah nilai `SUPABASE_URL` di `.env.local` memiliki akhiran `/rest/v1/`, sehingga `@supabase/supabase-js` mengakses path yang salah (`/rest/v1/rest/v1/produk`).
+
+**Perbaikan:** Menghapus akhiran `/rest/v1/` pada `SUPABASE_URL` di `.env.local` dan menormalisasi `SUPABASE_URL` dengan `new URL(rawUrl).origin` (serta `.trim()`) di `lib/supabase/server.js` tanpa mengubah tampilan di `app/page.jsx` maupun `components/KartuProduk.jsx`.
