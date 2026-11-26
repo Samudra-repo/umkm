@@ -19,7 +19,7 @@ export default async function HalamanDetailProduk({ params }) {
   const supabase = buatSupabaseServer();
   const { data: produk, error } = await supabase
     .from("produk")
-    .select("id, nama, harga, deskripsi, foto_url, kategori")
+    .select("*")
     .eq("id", id)
     .maybeSingle();
 
@@ -39,7 +39,7 @@ export default async function HalamanDetailProduk({ params }) {
   if (produk.kategori) {
     const { data: terkait, error: errorTerkait } = await supabase
       .from("produk")
-      .select("id, nama, harga, foto_url, kategori")
+      .select("*")
       .eq("kategori", produk.kategori)
       .neq("id", produk.id)
       .order("created_at", { ascending: false })
@@ -53,6 +53,7 @@ export default async function HalamanDetailProduk({ params }) {
   }
 
   const daftarFoto = ambilDaftarFoto(produk.foto_url);
+  const habis = produk.stok !== undefined && produk.stok !== null && Number(produk.stok) <= 0;
 
   return (
     <>
@@ -62,7 +63,14 @@ export default async function HalamanDetailProduk({ params }) {
           <Link href="/" className="text-sm text-teks-lembut underline underline-offset-4 hover:text-utama">
             Kembali ke katalog
           </Link>
-          <p className="text-sm text-teks-lembut">{produk.kategori}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm text-teks-lembut">{produk.kategori}</p>
+            {habis && (
+              <span className="rounded-md bg-bahaya px-2.5 py-0.5 text-xs font-bold text-white">
+                Habis
+              </span>
+            )}
+          </div>
           <h1 className="text-3xl font-extrabold leading-tight tracking-tight">{produk.nama}</h1>
           <p className="self-start rounded-md bg-harga-latar px-3 py-1 text-xl font-bold text-harga">
             {formatRupiah(produk.harga)}

@@ -27,6 +27,11 @@ export default function TabelProduk({ daftarProduk }) {
                     className="h-10 w-10 rounded-md object-cover"
                   />
                   <span className="font-semibold">{produk.nama}</span>
+                  {produk.stok !== undefined && produk.stok !== null && Number(produk.stok) <= 0 && (
+                    <span className="rounded-md bg-bahaya px-2 py-0.5 text-xs font-bold text-white">
+                      Habis
+                    </span>
+                  )}
                 </div>
               </td>
               <td className="px-4 py-3 text-teks-lembut">{produk.kategori}</td>

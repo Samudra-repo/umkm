@@ -52,6 +52,14 @@ export default function FormProduk({ produk = {}, labelTombol }) {
         required
       />
       <Input
+        label="Stok"
+        name="stok"
+        type="number"
+        min="0"
+        defaultValue={produk.stok ?? 10}
+        required
+      />
+      <Input
         label="Kategori"
         name="kategori"
         value={kategori}

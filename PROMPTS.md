@@ -139,3 +139,11 @@ Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yan
 **Hasil:** Membuat helper `lib/foto.js` (`ambilDaftarFoto` dan `ambilFotoUtama`) yang mendukung satu atau beberapa URL foto pada kolom `foto_url` (dipisah baris baru, koma, atau JSON array), membuat komponen `components/GaleriProduk.jsx` dengan foto utama dan gambar kecil yang bisa diklik untuk berganti foto (dan tetap tampil normal bila hanya ada satu foto), memperbarui `app/produk/[id]/page.jsx`, `components/KartuProduk.jsx`, `components/TabelProduk.jsx`, serta `components/FormProduk.jsx`.
 
 **Perbaikan:** -
+
+### US-19 Status stok
+
+**Prompt:** Sebagai pengunjung, saya ingin tahu produk yang habis, supaya saya tidak memesan produk yang tidak ada.
+
+**Hasil:** Menambahkan skrip migrasi `docs/migrasi-stok.sql` untuk menambah kolom `stok` pada tabel `produk`, memperbarui query di `app/page.jsx` dan `app/produk/[id]/page.jsx` dengan `.select("*")`, menampilkan penanda `"Habis"` di `components/KartuProduk.jsx`, `app/produk/[id]/page.jsx`, dan `components/TabelProduk.jsx` ketika `stok <= 0`, menonaktifkan tombol `Pesan via WhatsApp` di `components/TombolWhatsApp.jsx` saat produk habis, serta menambahkan input `Stok` di `components/FormProduk.jsx`.
+
+**Perbaikan:** -

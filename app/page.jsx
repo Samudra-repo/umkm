@@ -74,7 +74,7 @@ export default async function HalamanKatalog({ searchParams }) {
 
     let queryProduk = supabase
       .from("produk")
-      .select("id, nama, harga, foto_url, kategori", { count: "exact" })
+      .select("*", { count: "exact" })
       .order(konfigurasiUrutan.kolom, { ascending: konfigurasiUrutan.ascending });
 
     if (konfigurasiUrutan.kolom !== "created_at") {
