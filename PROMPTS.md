@@ -123,3 +123,11 @@ Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yan
 **Hasil:** Memperbarui `app/page.jsx` untuk membatasi jumlah produk per halaman (`PRODUK_PER_HALAMAN = 12`) langsung di query Supabase menggunakan `{ count: "exact" }` dan `.range(awal, akhir)`, membaca parameter URL `halaman`, menghitung jumlah halaman total, mengarahkan ke halaman terakhir bila nomor halaman melebihi batas, serta menampilkan navigasi halaman (**Sebelumnya**, nomor halaman, **Berikutnya**) yang tetap menjaga filter, pencarian, dan urutan.
 
 **Perbaikan:** -
+
+### US-17 Produk terkait di halaman detail
+
+**Prompt:** Sebagai pengunjung, saya ingin melihat produk lain yang mirip, supaya saya punya pilihan lain.
+
+**Hasil:** Memperbarui `app/produk/[id]/page.jsx` untuk mengambil maksimal 3 produk lain dari tabel `produk` di Supabase dengan kategori yang sama (`.eq("kategori", produk.kategori)`) dan mengecualikan produk yang sedang dibuka (`.neq("id", produk.id)`), lalu menampilkannya di bagian **Produk terkait** menggunakan komponen `KartuProduk`.
+
+**Perbaikan:** -
