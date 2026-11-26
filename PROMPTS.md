@@ -107,3 +107,11 @@ Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yan
 **Hasil:** Menambahkan Server Action `buatDeskripsiAI` di `app/admin/actions.js` yang memeriksa login admin lewat `periksaAdminLogin()`, memanggil Gemini API (`gemini-2.5-flash`) dari server menggunakan `GEMINI_API_KEY` (tanpa terekspos ke browser), serta memperbarui `components/FormProduk.jsx` dengan tombol **Buat deskripsi dengan AI** yang mengisi kolom deskripsi sebelum produk disimpan. Menambahkan `GEMINI_API_KEY=` di `.env.example`.
 
 **Perbaikan:** -
+
+### US-15 Urutkan produk
+
+**Prompt:** Sebagai pengunjung, saya ingin mengurutkan produk, supaya cepat menemukan yang murah atau yang terbaru.
+
+**Hasil:** Memperbarui `app/page.jsx` dengan mapping `URUTAN_PRODUK` (`terbaru`, `termurah`, `termahal`) yang membaca parameter URL `urut`, menerapkan `.order(...)` langsung pada query Supabase di server, dan menampilkan tombol pilihan urutan (`Terbaru`, `Termurah`, `Termahal`) sambil mempertahankan filter kategori dan pencarian.
+
+**Perbaikan:** -

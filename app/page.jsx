@@ -7,10 +7,17 @@ import { toko } from "@/lib/toko";
 
 export const dynamic = "force-dynamic";
 
-function buatUrlKatalog({ kategori, cari }) {
+const URUTAN_PRODUK = {
+  terbaru: { label: "Terbaru", kolom: "created_at", ascending: false },
+  termurah: { label: "Termurah", kolom: "harga", ascending: true },
+  termahal: { label: "Termahal", kolom: "harga", ascending: false },
+};
+
+function buatUrlKatalog({ kategori, cari, urut }) {
   const params = new URLSearchParams();
   if (kategori) params.set("kategori", kategori);
   if (cari) params.set("cari", cari);
+  if (urut && urut !== "terbaru") params.set("urut", urut);
   const query = params.toString();
   return query ? `/?${query}` : "/";
 }
@@ -19,10 +26,21 @@ function escapeLike(nilai) {
   return nilai.replace(/[\\%_]/g, "\\$&");
 }
 
+function kelasPill(aktif) {
+  return `rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+    aktif
+      ? "bg-utama text-white"
+      : "border border-garis bg-latar text-teks hover:border-utama hover:text-utama"
+  }`;
+}
+
 export default async function HalamanKatalog({ searchParams }) {
   const resolvedParams = await searchParams;
   const kategoriAktif = resolvedParams?.kategori?.toString().trim() ?? "";
   const kataKunci = resolvedParams?.cari?.toString().trim() ?? "";
+  const rawUrut = resolvedParams?.urut?.toString().trim() ?? "";
+  const urutAktif = Object.hasOwn(URUTAN_PRODUK, rawUrut) ? rawUrut : "terbaru";
+  const konfigurasiUrutan = URUTAN_PRODUK[urutAktif];
 
   let daftarProduk = [];
   let daftarKategori = [];
@@ -34,7 +52,11 @@ export default async function HalamanKatalog({ searchParams }) {
     let queryProduk = supabase
       .from("produk")
       .select("id, nama, harga, foto_url, kategori")
-      .order("created_at", { ascending: false });
+      .order(konfigurasiUrutan.kolom, { ascending: konfigurasiUrutan.ascending });
+
+    if (konfigurasiUrutan.kolom !== "created_at") {
+      queryProduk = queryProduk.order("created_at", { ascending: false });
+    }
 
     if (kategoriAktif) {
       queryProduk = queryProduk.eq("kategori", kategoriAktif);
@@ -70,7 +92,7 @@ export default async function HalamanKatalog({ searchParams }) {
       "Gagal terhubung ke database. Pastikan SUPABASE_URL dan SUPABASE_SECRET_KEY sudah dikonfigurasi dengan benar.";
   }
 
-  const sedangDisaring = Boolean(kategoriAktif || kataKunci);
+  const sedangDisaring = Boolean(kategoriAktif || kataKunci || urutAktif !== "terbaru");
 
   return (
     <>
@@ -87,10 +109,11 @@ export default async function HalamanKatalog({ searchParams }) {
           Produk kami
         </h2>
 
-        {!pesanError && (daftarKategori.length > 0 || sedangDisaring) && (
+        {!pesanError && (daftarKategori.length > 0 || daftarProduk.length > 0 || sedangDisaring) && (
           <div className="flex flex-col gap-4">
             <form method="GET" action="/" className="flex flex-col gap-2 sm:flex-row sm:items-end">
               {kategoriAktif && <input type="hidden" name="kategori" value={kategoriAktif} />}
+              {urutAktif !== "terbaru" && <input type="hidden" name="urut" value={urutAktif} />}
               <div className="flex-1 sm:max-w-sm">
                 <Input
                   key={kataKunci}
@@ -114,33 +137,39 @@ export default async function HalamanKatalog({ searchParams }) {
             {daftarKategori.length > 0 && (
               <nav aria-label="Filter kategori" className="flex flex-wrap gap-2">
                 <Link
-                  href={buatUrlKatalog({ cari: kataKunci })}
-                  className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
-                    !kategoriAktif
-                      ? "bg-utama text-white"
-                      : "border border-garis bg-latar text-teks hover:border-utama hover:text-utama"
-                  }`}
+                  href={buatUrlKatalog({ cari: kataKunci, urut: urutAktif })}
+                  className={kelasPill(!kategoriAktif)}
                 >
                   Semua
                 </Link>
-                {daftarKategori.map((kategori) => {
-                  const aktif = kategoriAktif === kategori;
-                  return (
-                    <Link
-                      key={kategori}
-                      href={buatUrlKatalog({ kategori, cari: kataKunci })}
-                      className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
-                        aktif
-                          ? "bg-utama text-white"
-                          : "border border-garis bg-latar text-teks hover:border-utama hover:text-utama"
-                      }`}
-                    >
-                      {kategori}
-                    </Link>
-                  );
-                })}
+                {daftarKategori.map((kategori) => (
+                  <Link
+                    key={kategori}
+                    href={buatUrlKatalog({ kategori, cari: kataKunci, urut: urutAktif })}
+                    className={kelasPill(kategoriAktif === kategori)}
+                  >
+                    {kategori}
+                  </Link>
+                ))}
               </nav>
             )}
+
+            <nav aria-label="Urutkan produk" className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold text-teks-lembut">Urutkan:</span>
+              {Object.entries(URUTAN_PRODUK).map(([kunci, info]) => (
+                <Link
+                  key={kunci}
+                  href={buatUrlKatalog({
+                    kategori: kategoriAktif,
+                    cari: kataKunci,
+                    urut: kunci,
+                  })}
+                  className={kelasPill(urutAktif === kunci)}
+                >
+                  {info.label}
+                </Link>
+              ))}
+            </nav>
           </div>
         )}
 
