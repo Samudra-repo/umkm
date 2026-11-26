@@ -131,3 +131,11 @@ Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yan
 **Hasil:** Memperbarui `app/produk/[id]/page.jsx` untuk mengambil maksimal 3 produk lain dari tabel `produk` di Supabase dengan kategori yang sama (`.eq("kategori", produk.kategori)`) dan mengecualikan produk yang sedang dibuka (`.neq("id", produk.id)`), lalu menampilkannya di bagian **Produk terkait** menggunakan komponen `KartuProduk`.
 
 **Perbaikan:** -
+
+### US-18 Galeri beberapa foto produk
+
+**Prompt:** Sebagai pengunjung, saya ingin melihat beberapa foto satu produk, supaya saya tahu bentuk produknya dari berbagai sisi.
+
+**Hasil:** Membuat helper `lib/foto.js` (`ambilDaftarFoto` dan `ambilFotoUtama`) yang mendukung satu atau beberapa URL foto pada kolom `foto_url` (dipisah baris baru, koma, atau JSON array), membuat komponen `components/GaleriProduk.jsx` dengan foto utama dan gambar kecil yang bisa diklik untuk berganti foto (dan tetap tampil normal bila hanya ada satu foto), memperbarui `app/produk/[id]/page.jsx`, `components/KartuProduk.jsx`, `components/TabelProduk.jsx`, serta `components/FormProduk.jsx`.
+
+**Perbaikan:** -

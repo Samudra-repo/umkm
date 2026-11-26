@@ -57,12 +57,18 @@ export default function FormProduk({ produk = {}, labelTombol }) {
         value={kategori}
         onChange={(e) => setKategori(e.target.value)}
       />
-      <Input
-        label="Link foto"
-        name="foto_url"
-        placeholder="https://... atau /produk/nama-file.svg"
-        defaultValue={produk.foto_url}
-      />
+      <div className="flex flex-col gap-1">
+        <Input
+          label="Link foto"
+          name="foto_url"
+          textarea
+          placeholder="https://... atau /produk/nama-file.svg (pisahkan baris baru/koma untuk beberapa foto)"
+          defaultValue={produk.foto_url}
+        />
+        <p className="text-xs text-teks-lembut">
+          Bisa diisi lebih dari satu link foto (pisahkan dengan baris baru atau koma).
+        </p>
+      </div>
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-sm font-semibold">Deskripsi</span>
