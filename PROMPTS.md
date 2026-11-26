@@ -16,11 +16,13 @@ Tampilkan produk dengan komponen KartuProduk yang sudah ada, tanpa mengubah tamp
 
 ## US-02 Detail produk
 
-**Prompt:**
+**Prompt:** Baca docs/user-stories.md bagian US-02.
 
-**Hasil:**
+Ubah app/produk/[id]/page.jsx supaya mengambil satu produk dari tabel "produk" di Supabase berdasarkan id di URL, di sisi server, memakai koneksi Supabase yang sudah dibuat di lib/supabase. Kalau produk tidak ditemukan, panggil notFound(). Jangan ubah tampilannya. Hapus CatatanBelumAktif dari halaman ini, tapi biarkan tombol WhatsApp.
 
-**Perbaikan:**
+**Hasil:** Mengubah `app/produk/[id]/page.jsx` menjadi halaman dinamis (`force-dynamic`) yang membaca `id` lewat `await params`, memvalidasi `id` numerik, mengambil data produk dari tabel `produk` di Supabase melalui `buatSupabaseServer()` di `lib/supabase/server.js`, memanggil `notFound()` bila produk tidak ada, mempertahankan tampilan dan komponen `TombolWhatsApp`, serta menghapus `CatatanBelumAktif`.
+
+**Perbaikan:** -
 
 ## US-03 Pesan via WhatsApp
 
