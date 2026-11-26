@@ -115,3 +115,11 @@ Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yan
 **Hasil:** Memperbarui `app/page.jsx` dengan mapping `URUTAN_PRODUK` (`terbaru`, `termurah`, `termahal`) yang membaca parameter URL `urut`, menerapkan `.order(...)` langsung pada query Supabase di server, dan menampilkan tombol pilihan urutan (`Terbaru`, `Termurah`, `Termahal`) sambil mempertahankan filter kategori dan pencarian.
 
 **Perbaikan:** -
+
+### US-16 Paginasi atau muat lebih banyak
+
+**Prompt:** Sebagai pengunjung, saya ingin daftar produk tidak terlalu panjang, supaya halaman cepat dibuka.
+
+**Hasil:** Memperbarui `app/page.jsx` untuk membatasi jumlah produk per halaman (`PRODUK_PER_HALAMAN = 12`) langsung di query Supabase menggunakan `{ count: "exact" }` dan `.range(awal, akhir)`, membaca parameter URL `halaman`, menghitung jumlah halaman total, mengarahkan ke halaman terakhir bila nomor halaman melebihi batas, serta menampilkan navigasi halaman (**Sebelumnya**, nomor halaman, **Berikutnya**) yang tetap menjaga filter, pencarian, dan urutan.
+
+**Perbaikan:** -
