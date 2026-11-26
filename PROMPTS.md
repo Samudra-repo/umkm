@@ -56,11 +56,13 @@ Buat Server Action ganti password di app/admin/actions.js untuk admin yang sedan
 
 ## US-06 Proteksi halaman admin
 
-**Prompt:**
+**Prompt:** Baca AGENTS.md aturan keamanan nomor 3 dan 4, dan docs/user-stories.md bagian US-06.
 
-**Hasil:**
+Buat file proxy.js di root proyek (Next.js 16). Semua rute /admin kecuali /admin/login wajib login dengan Supabase Auth; kalau belum login, alihkan ke /admin/login. Pastikan juga setiap Server Action yang mengubah data memeriksa login di server. Hapus CatatanBelumAktif dari halaman /admin.
 
-**Perbaikan:**
+**Hasil:** Membuat `proxy.js` di root proyek (`export async function proxy(request)` dengan `matcher: ["/admin/:path*"]`) yang memeriksa sesi login Supabase Auth lewat `supabase.auth.getUser()` untuk seluruh rute `/admin` kecuali `/admin/login`, dan mengalihkan ke `/admin/login` bila belum login. Memisahkan helper `ambilUrlSupabase()` ke `lib/supabase/url.js`, memastikan pemeriksaan login (`periksaAdminLogin()`) dijalankan di awal Server Action pengubah data (`gantiPassword`) di `app/admin/actions.js`, dan menghapus `CatatanBelumAktif` dari `app/admin/page.jsx`.
+
+**Perbaikan:** -
 
 ## Debugging dan fitur bonus
 

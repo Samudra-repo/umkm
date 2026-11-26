@@ -51,29 +51,39 @@ export async function keluarAdmin() {
   redirect("/admin/login");
 }
 
+async function periksaAdminLogin() {
+  const supabase = await buatSupabaseSesi();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { supabase: null, user: null };
+  }
+
+  return { supabase, user };
+}
+
 export async function gantiPassword(_stateSebelumnya, formData) {
-  const passwordBaru = formData.get("password_baru")?.toString() ?? "";
-  const konfirmasi = formData.get("konfirmasi_password")?.toString() ?? "";
-
-  if (passwordBaru.length < 8) {
-    return { error: "Password baru minimal 8 karakter." };
-  }
-
-  if (passwordBaru !== konfirmasi) {
-    return { error: "Konfirmasi password tidak sama dengan password baru." };
-  }
-
   try {
-    const supabase = await buatSupabaseSesi();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    const { supabase, user } = await periksaAdminLogin();
 
-    if (userError || !user) {
+    if (!user) {
       return {
         error: "Anda harus masuk sebagai admin terlebih dahulu sebelum mengganti password.",
       };
+    }
+
+    const passwordBaru = formData.get("password_baru")?.toString() ?? "";
+    const konfirmasi = formData.get("konfirmasi_password")?.toString() ?? "";
+
+    if (passwordBaru.length < 8) {
+      return { error: "Password baru minimal 8 karakter." };
+    }
+
+    if (passwordBaru !== konfirmasi) {
+      return { error: "Konfirmasi password tidak sama dengan password baru." };
     }
 
     const { error } = await supabase.auth.updateUser({
